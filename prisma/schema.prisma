@@ -74,20 +74,31 @@ price          BigInt @default(0) @map ("price") // used BigInt  variable to hol
 
 
 makeId         Int @map("make_id")
+make           Make @relation(fields: [makeId], references: [id], onDelete: Cascade)
 modelId        Int @map("model_id")
+modelVariantId Int @map("model_variant_id")
+model          Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
+modelVariant   ModelVariant? @relation(fields: [modelVariantId], references: [id], onDelete: Cascade)
 QisjCompliant  QISJCompliant @default(EXEMPT) 
 transmission   transmission @default(MANUAL)
+
+colour         colour @default(BLACK)
+fuelType      fuelType  @default(PETROL)
+bodyType      bodyType  @default(SEDAN) 
+
+currency       CurrencyCode @default(KES) @map("currency")
+status         ClassifiedStatus @default(AVAILABLE)
+images        Image[]
+customers     Customer[]
+
 createdAt      DateTime @default(now()) @map("created_at")
 updatedAt      DateTime @updatedAt @map("updated_at")
-colour         colour @default(BLACK)
-fuelType      fuelType  @default("PETROL")
-bodyType      bodyType  @default("SEDAN") 
 
 
-
-@@map("classifieds")
-
-
+@@index([makeId], name: "index_make_model") 
+@@index ([status], name: "index_status")
+@@index ([price], name: "index_price")
+@@map ("classifieds")
 
 }
 
@@ -140,4 +151,161 @@ enum transmission {
     WAGON
     OTHER
   }
+
+enum CurrencyCode {
+  KES
+  USD
+  EUR
+  GBP
+  JPY
+  CNY
+  INR
+  AUD
+  CAD
+  CHF
+  ZAR
+  NGN
+  GHS
+  TZS
+  UGX
+  RWF
+  BIF
+  XAF
+  XOF
+}
+
+enum ClassifiedStatus {
+  AVAILABLE
+  SOLD
+  PENDING
+  RESERVED
+  OFF_MARKET
+}
+
+model Image {
+  id               Int      @id @default(autoincrement())
+  alt             String
+  src             String 
+  url             String
+  caption         String?
+  classifiedId    Int   @map("classified_id")
+  classified      Classified @relation(fields: [classifiedId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  blurhash        String       // for storing the blurhash string
+  isMain         Boolean   @default(false) @map("is_main") // indicates if this is the main image for the classified
+
+
   
+  
+                         
+  @@map("images")
+}
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  phone        String
+  classifiedId Int      @map("classified_id")
+  classified   Classified @relation(fields: [classifiedId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  lifecycle    CustomerLifeCycle[] // one-to-many relationship with CustomerLifeCycle
+  @@map("customers")
+}
+
+enum CustomerStatus {
+  SUBSCRIBER
+  CONTACTED
+  INTERESTED
+  COLD
+  PURCHASED
+}
+
+
+
+
+
+
+
+
+
+model Make {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  image     String
+  models    Model[]
+  classifieds Classified[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("makes")
+}
+
+model Model {
+  id         Int      @id @default(autoincrement())
+  name       String
+  makeId     Int      @map("make_id")
+  make       Make     @relation(fields: [makeId], references: [id], onDelete: Cascade) // added relation to Make
+  variants   ModelVariant[] // added relation to ModelVariant
+  classifieds Classified[]
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([name, makeId])
+  @@map("models")
+}
+
+
+model ModelVariant {
+    id        Int      @id @default(autoincrement())
+    name      String
+    modelId   Int      @map("model_id") // foreign key to Model
+
+    yearStart Int      @map("year_start")
+    yearEnd   Int      @map("year_end")
+    model     Model    @relation(fields: [modelId], references: [id], onDelete: Cascade) // added relation to Model
+    classifieds Classified[]        
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")    
+
+
+    @@unique([name, modelId])
+    @@map("model_variants") // changed table name to plural
+
+
+
+    
+}               
+  
+
+// Customer life cycle in the database to track customer status changes
+
+
+  model CustomerLifeCycle {
+    id             Int      @id @default(autoincrement())
+    customerId     Int      @map("customer_id")
+    oldstatus      CustomerStatus @map("old_status")
+    newstatus      CustomerStatus @map("new_status")
+    createdAt      DateTime @default(now()) @map("created_at")
+    updatedAt      DateTime @updatedAt @map("updated_at")
+    customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    
+    @@unique ([customerId, oldstatus,createdAt])
+    @@map("customer_lifecycle")
+  }
+
+
+  //Analytics for page count views 
+
+  model PageView {
+    id        Int      @id @default(autoincrement())
+    page      String
+    viewdAt DateTime @map("viewed_at")
+    
+
+    
+    @@unique([page, date])
+    @@map("page_views")
+  }
