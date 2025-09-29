@@ -1,10 +1,10 @@
-import {PrismaClient} from "@prisma/client"; // eslint-disable-line import/no-extraneous-dependencies
+import {PrismaClient} from "@prisma/client"; // Import the PrismaClient class from the Prisma client package
 
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined }; // eslint-disable-line no-var
+const globalForPrisma = global as unknown as { prisma: PrismaClient | undefined }; // Create a global variable to hold the Prisma client instance
  
 
-function makeClient() {
+function makeClient() { // Function to create a new Prisma client instance
 return new PrismaClient({log: ['error', 'info', 'warn' ] });
 
 

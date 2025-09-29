@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+id             String      @id    @default  (cuid())
+email         String      @unique
+passwordHash String
+createdAt    DateTime  @default (now())
+updatedAt    DateTime  @updatedAt
+
+sessions Session[] // one-to-many relationship with Session
+}
+
+
+
+model Session {
+id              String      @id    @default  (cuid())
+SessionToken    String      @unique @map     ("Session_token")
+userId          String      @map               ("user_id")  // Foreign key to User model
+expires         DateTime    
+requires2FA     Boolean     @default     (true)
+user            User        @relation   (fields: [userId], references: [id], onDelete: Cascade)
+
+
+
+@@map("sessions")
+
+}
+
+model Car {
+  id          String   @id @default(cuid())
+  make        String
+  model       String
+  year        Int
+  price       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Sale {
+  id          String   @id @default(cuid())
+  carId       String
+  customerName String
+  saleDate    DateTime @default(now())
+  salePrice   Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("sales")
+}
+
+
+model Classified {
+id             Int      @id @default(autoincrement())
+views          Int      @default(0)
+slug           String   @unique 
+VehicleReg     String?
+
+
+title          String
+year           Int
+odoReading     Int @default(0) @map("odo_reading")
+seats          Int @default(5)
+price          BigInt @default(0) @map ("price") // used BigInt  variable to hold lager values than int 
+
+
+makeId         Int @map("make_id")
+modelId        Int @map("model_id")
+QisjCompliant  QISJCompliant @default(EXEMPT) 
+transmission   transmission @default(MANUAL)
+createdAt      DateTime @default(now()) @map("created_at")
+updatedAt      DateTime @updatedAt @map("updated_at")
+colour         colour @default(BLACK)
+fuelType      fuelType  @default("PETROL")
+bodyType      bodyType  @default("SEDAN") 
+
+
+
+@@map("classifieds")
+
+
+
+}
+
+
+
+enum QISJCompliant { 
+EXEMPT
+NON_EXEMPT
+}
+
+
+enum transmission {
+  MANUAL
+  AUTOMATIC
+  
+  }
+
+  enum colour {
+    BLACK
+    WHITE
+    BLUE
+    RED
+    GREEN
+    YELLOW
+    GREY
+    SILVER
+    PURPLE
+    ORANGE 
+    BROWN
+    
+  }
+
+  enum fuelType {
+    PETROL
+    DIESEL
+    ELECTRIC
+    HYBRID
+    CNG
+    LPG
+  }
+
+  enum bodyType {
+    SEDAN
+    SUV
+    TRUCK
+    COUPE
+    CONVERTIBLE
+    HATCHBACK
+    VAN
+    WAGON
+    OTHER
+  }
+  
