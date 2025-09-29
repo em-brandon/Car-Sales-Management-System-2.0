@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+id             String      @id    @default  (cuid())
+email         String      @unique
+passwordHash String
+createdAt    DateTime  @default (now())
+updatedAt    DateTime  @updatedAt
+
+sessions Session[] // one-to-many relationship with Session
+}
+
+//
+
+
+model Session {
+id              String      @id    @default  (cuid())
+SessionToken    String      @unique @map     ("Session_token")
+userId          String      @map               ("user_id")  // Foreign key to User model
+expires         DateTime    
+requires2FA     Boolean     @default     (true)
+user            User        @relation   (fields: [userId], references: [id], onDelete: Cascade)
+
+
+
+@@map("sessions")
+
+}
