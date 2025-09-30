@@ -1,13 +1,13 @@
 "use client"
 
 import * as react from "react";
-import { Toast } from "./Toast";
+import  Toast  from "@/components/ui/toasts/Toast"; 
 
 export const ToastContext = react.createContext({
   notify: (message: string, variant?: "default" | "destructive") => {},
 })
 
-export const ToastProvider: react.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = react.useState<{ id: string; message: string; variant: "default" | "destructive" }[]>([]);
 
   const notify = (message: string, variant: "default" | "destructive" = "default") => {
