@@ -1,32 +1,22 @@
-import type { PageProps } from "@/config/types";
+import type { AwaitedPageProps, PageProps } from "@/config/types"
 import { prisma } from "@/lib/prisma";
 
-export default async function InventoryPage({ searchParams }: PageProps) {
-  // Example: extract query params (like ?q=car)
-  const query = searchParams?.q || "";
+const getInventoryItems = async (
+  searchParams: Record<string, string | string[] | undefined>
+) => {
+  return [];
+};
 
-  // Get all classifieds that match query
-  const classifieds = await prisma.classified.findMany({
-    where: {
-      title: {
-        contains: query,
-        mode: "insensitive",
-      },
-    },
-  });
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const classifieds = await getInventoryItems(searchParams ?? {});
 
-  // Count all classifieds
+  console.log({ classifieds });
+
   const count = await prisma.classified.count();
 
-  return (
-    <main>
-      <h1>Inventory Page</h1>
-      <p>Total classifieds: {count}</p>
-      <ul>
-        {classifieds.map((item) => (
-          <li key={item.id}>{item.title}</li>
-        ))}
-      </ul>
-    </main>
-  );
+  return <h1>{count}</h1>;
 }

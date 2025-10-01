@@ -17,14 +17,14 @@ export const metadata: Metadata = {
 const mulish = Mulish({ // Use the Mulish font
   weight: "variable",
   subsets: ["latin"],
-  variable: "--font-mulish",
+  variable: "--font-heading",
   display: "swap",
 });
 
 const roboto = Roboto({  // Use the Roboto font
   weight: "400",
   subsets: ["latin"],
-  variable: "--font-roboto",
+  variable: "--font-heading",
   display: "swap",
 });
 
