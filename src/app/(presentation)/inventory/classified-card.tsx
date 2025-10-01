@@ -1,8 +1,18 @@
-export const ClassifiedCard = (props: any) => {
-import Link from "next/link
+import { routes} from '@/config/routes'
+import {Classified, Prisma} from '@prisma/client'
+import Image from 'next/image'
+import Link from 'next/link'
 
-return <divclassName= "aspect -3/2 relative ">
+type ClassifiedWithImages = Prisma.ClassifiedCardGetPayload <{
+    include: {
+        images : true ;
 
-<Link href = {routes.singleClassified("slug")}></Link>
+
+    }
+
+
+}>
+interface ClassifiedCardProps {
+    classified: <ClassifiedWithImages;
 }
 
