@@ -18,5 +18,8 @@ export default async function InventoryPage({
 
   const count = await prisma.classified.count();
 
-  return <h1>{count}</h1>;
+  return <div className="grid grid-cols-1"><h1>{count}</h1>;
+  
+  </div>
 }
+
