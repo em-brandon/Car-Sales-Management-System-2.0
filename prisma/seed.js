@@ -1,161 +1,177 @@
-// prisma/seed.js
-import { PrismaClient } from '../src/generated/prisma/index.js'; // adjust path if needed
+import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Start seeding ...');
+  console.log('🌱 Starting full database seed...');
 
-  // ----------------------
-  // Users and Sessions
-  // ----------------------
+  // =======================
+  // USERS & SESSIONS
+  // =======================
   const users = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 20; i++) {
     const user = await prisma.user.create({
       data: {
         email: faker.internet.email(),
         passwordHash: faker.internet.password(),
-        sessions: {
-          create: [
-            {
-              SessionToken: faker.string.uuid(),
-              expires: faker.date.future(),
-              requires2FA: faker.datatype.boolean(),
-            },
-          ],
-        },
       },
     });
     users.push(user);
+
+    await prisma.session.create({
+      data: {
+        SessionToken: faker.string.uuid(),
+        userId: user.id,
+        expires: faker.date.future(),
+        requires2FA: faker.datatype.boolean(),
+      },
+    });
   }
 
-  // ----------------------
-  // Makes, Models, Variants
-  // ----------------------
+  // =======================
+  // MAKES & MODELS
+  // =======================
   const makes = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 20; i++) {
     const make = await prisma.make.create({
       data: {
-        name: faker.vehicle.manufacturer() + '-' + faker.string.alphanumeric({ length: 5 }),
-
-        image: `https://loremflickr.com/640/480/car?random=${faker.number.int({ min: 1, max: 1000 })}`,
-        models: {
-          create: [
-            {
-              name: faker.vehicle.model(),
-              variants: {
-                create: [
-                  {
-                    name: faker.vehicle.model() + '-V1',
-                    yearStart: faker.number.int({ min: 2010, max: 2015 }),
-                    yearEnd: faker.number.int({ min: 2016, max: 2024 }),
-                  },
-                  {
-                    name: faker.vehicle.model() + '-V2',
-                    yearStart: faker.number.int({ min: 2015, max: 2018 }),
-                    yearEnd: faker.number.int({ min: 2019, max: 2024 }),
-                  },
-                ],
-              },
-            },
-          ],
-        },
+        name: faker.vehicle.manufacturer() + ' ' + i,
+        image: faker.image.urlPicsumPhotos({ width: 400, height: 300 }),
       },
     });
     makes.push(make);
+
+    // Create related models for each make
+    for (let j = 0; j < 2; j++) {
+      const model = await prisma.model.create({
+        data: {
+          name: faker.vehicle.model(),
+          makeId: make.id,
+        },
+      });
+
+      // Create model variants
+      await prisma.modelVariant.create({
+        data: {
+          name: `${model.name} Variant ${j + 1}`,
+          modelId: model.id,
+          yearStart: faker.number.int({ min: 2000, max: 2020 }),
+          yearEnd: faker.number.int({ min: 2021, max: 2025 }),
+        },
+      });
+    }
   }
 
-  // ----------------------
-  // Cars
-  // ----------------------
-  const cars = [];
-  for (let i = 0; i < 5; i++) {
+  // =======================
+  // CLASSIFIEDS
+  // =======================
+  const allModels = await prisma.model.findMany();
+  const allVariants = await prisma.modelVariant.findMany();
+
+  const classifieds = [];
+  for (let i = 0; i < 20; i++) {
+    const model = faker.helpers.arrayElement(allModels);
+    const variant = faker.helpers.arrayElement(allVariants);
+    const makeId = model.makeId;
+
+    const classified = await prisma.classified.create({
+      data: {
+        title: `${faker.vehicle.manufacturer()} ${faker.vehicle.model()}`,
+        slug: faker.lorem.slug(),
+        year: faker.number.int({ min: 2005, max: 2025 }),
+        price: BigInt(faker.number.int({ min: 500000, max: 8000000 })),
+        makeId,
+        modelId: model.id,
+        modelVariantId: variant.id,
+        transmission: faker.helpers.arrayElement(['MANUAL', 'AUTOMATIC']),
+        colour: faker.helpers.arrayElement([
+          'BLACK',
+          'WHITE',
+          'RED',
+          'BLUE',
+          'SILVER',
+          'GREY',
+          'GREEN',
+        ]),
+        fuelType: faker.helpers.arrayElement(['PETROL', 'DIESEL', 'HYBRID']),
+        bodyType: faker.helpers.arrayElement(['SEDAN', 'SUV', 'TRUCK']),
+        currency: 'KES',
+        status: faker.helpers.arrayElement(['AVAILABLE', 'SOLD', 'PENDING']),
+      },
+    });
+    classifieds.push(classified);
+  }
+
+  // =======================
+  // IMAGES
+  // =======================
+  for (const classified of classifieds) {
+    for (let i = 0; i < 2; i++) {
+      await prisma.image.create({
+        data: {
+          alt: faker.vehicle.model(),
+          src: faker.image.urlPicsumPhotos({ width: 640, height: 480 }),
+          url: faker.image.urlPicsumPhotos({ width: 640, height: 480 }),
+          caption: faker.lorem.words(3),
+          classifiedId: classified.id,
+          blurhash: faker.string.alphanumeric(20),
+          isMain: i === 0,
+        },
+      });
+    }
+  }
+
+  // =======================
+  // CUSTOMERS & SALES
+  // =======================
+  const customers = [];
+  for (const classified of classifieds.slice(0, 10)) {
+    const customer = await prisma.customer.create({
+      data: {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        phone: faker.phone.number(),
+        classifiedId: classified.id,
+      },
+    });
+    customers.push(customer);
+
+    await prisma.customerLifeCycle.create({
+      data: {
+        customerId: customer.id,
+        oldstatus: 'SUBSCRIBER',
+        newstatus: 'CONTACTED',
+      },
+    });
+  }
+
+  for (let i = 0; i < 20; i++) {
     const car = await prisma.car.create({
       data: {
         make: faker.vehicle.manufacturer(),
         model: faker.vehicle.model(),
         year: faker.number.int({ min: 2000, max: 2025 }),
-        price: faker.number.float({ min: 5000, max: 50000, precision: 0.01 }),
+        price: faker.number.float({ min: 500000, max: 8000000 }),
       },
     });
-    cars.push(car);
-  }
 
-  // ----------------------
-  // Sales
-  // ----------------------
-  for (let i = 0; i < 5; i++) {
     await prisma.sale.create({
       data: {
-        carId: cars[i].id,
+        carId: car.id,
         customerName: faker.person.fullName(),
-        salePrice: faker.number.float({ min: 5000, max: 50000, precision: 0.01 }),
+        salePrice: faker.number.float({ min: 500000, max: 8000000 }),
       },
     });
   }
 
-  // ----------------------
-  // Classifieds, Images, Customers
-  // ----------------------
-  for (const make of makes) {
-    const model = await prisma.model.findFirst({ where: { makeId: make.id } });
-    const variant = await prisma.modelVariant.findFirst({ where: { modelId: model.id } });
-
-    const classified = await prisma.classified.create({
-      data: {
-        title: `${make.name} ${model.name} ${variant.name}`,
-        slug: `${make.name.toLowerCase().replace(/\s+/g, '-')}-${model.name.toLowerCase().replace(/\s+/g, '-')}-${variant.name.toLowerCase().replace(/\s+/g, '-')}`,
-        year: faker.number.int({ min: 2005, max: 2025 }),
-        makeId: make.id,
-        modelId: model.id,
-        modelVariantId: variant.id,
-        transmission: 'MANUAL',
-        colour: 'BLACK',
-        fuelType: 'PETROL',
-        bodyType: 'SEDAN',
-        currency: 'KES',
-        status: 'AVAILABLE',
-      },
-    });
-
-    await prisma.image.create({
-      data: {
-        alt: 'Car image',
-        src: `https://loremflickr.com/640/480/car?random=${faker.number.int({ min: 1, max: 1000 })}`,
-        url: faker.internet.url(),
-        classifiedId: classified.id,
-        blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
-        isMain: true,
-      },
-    });
-
-    const customer = await prisma.customer.create({
-      data: {
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        phone: faker.phone.number('+2547########'),
-        classifiedId: classified.id,
-        lifecycle: {
-          create: [
-            {
-              oldstatus: 'SUBSCRIBER',
-              newstatus: 'INTERESTED',
-            },
-          ],
-        },
-      },
-    });
-  }
-
-  // ----------------------
-  // PageViews
-  // ----------------------
-  for (let i = 0; i < 10; i++) {
+  // =======================
+  // PAGE VIEWS
+  // =======================
+  for (let i = 0; i < 20; i++) {
     await prisma.pageView.create({
       data: {
-        path: `/classified/${faker.word.sample()}`,
-        viewedAt: faker.date.recent(),
+        path: faker.internet.url(),
         ipAddress: faker.internet.ip(),
         userAgent: faker.internet.userAgent(),
         Referrer: faker.internet.url(),
@@ -163,12 +179,12 @@ async function main() {
     });
   }
 
-  console.log('Seeding completed!');
+  console.log('✅ Database seeded with 20 records per table.');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {

@@ -1,6 +1,11 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export default {
+  schema: "./prisma/schema.prisma",
   seed: {
-    run: 'node prisma/seed.js', // or 'ts-node -r tsconfig-paths/register prisma/seed.ts' if using TS
+    run: async () => {
+      await import("./seed.js"); // ✅ correct relative path
+    },
   },
 };

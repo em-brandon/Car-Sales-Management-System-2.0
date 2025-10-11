@@ -1,7 +1,7 @@
 // This is your Prisma schema file,
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+ 
 }
 
 datasource db {
@@ -100,6 +100,9 @@ updatedAt      DateTime @updatedAt @map("updated_at")
 @@index ([price], name: "index_price")
 @@map ("classifieds")
 
+
+
+
 }
 
 
@@ -128,7 +131,11 @@ enum transmission {
     PURPLE
     ORANGE 
     BROWN
-    
+    SKY_BLUE
+    MAROON
+    MAGNETA
+    PINK 
+    IVORY 
   }
 
   enum fuelType {
