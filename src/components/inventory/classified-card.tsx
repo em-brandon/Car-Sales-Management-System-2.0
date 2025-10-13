@@ -36,10 +36,10 @@ export const ClassifiedCard = (props: ClassifiedCardProps) => {
         </div>
 
     );
-};
+}
 
    
-
+export default ClassifiedCard;
 
 
 
