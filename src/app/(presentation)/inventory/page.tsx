@@ -1,4 +1,5 @@
-import ClassifiedCard from "@/components/inventory/classified-card";
+import { ClassifiedCard } from "@/components/inventory/classified-card";
+import {Classifiedslist } from "@/components/inventory/classified-list";
 import type { AwaitedPageProps, PageProps } from "@/config/types";
 import { prisma } from "@/lib/prisma";
 
@@ -24,8 +25,10 @@ export default async function InventoryPage({
 
   const count = await prisma.classified.count();
 
+  return (
     <>
-      <ClassifiedsList classifieds={classifieds} />
+      < Classifiedslist  classifieds={classifieds} />
     </>
+  )
   
 }

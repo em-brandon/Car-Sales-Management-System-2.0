@@ -24,13 +24,13 @@ export const ClassifiedCard = (props: ClassifiedCardProps) => {
 
     <Link href={routes.singleClassified("slug")}>
     <Image 
-    placeholder='blur' 
+   
     blurDataURL={classified.images[0]?.blurhash}
-    src={classified.images[0]?.src || ''}
+    src={classified.images[0]?.url || ''}
     alt={classified.images[0]?.alt || ''}
     className="object-cover"
     fill={true}
-    quality={25}
+    quality={60}
     />
 </Link>
         </div>

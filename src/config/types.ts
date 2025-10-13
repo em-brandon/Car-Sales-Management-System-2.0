@@ -1,9 +1,11 @@
+import { Prisma } from '@prisma/client';
+
 type Params = {
 
    [x: string]: string | string[] ;
 
 
-}
+};
 
 
 export type PageProps = {
@@ -17,26 +19,11 @@ export type AwaitedPageProps = {
     search? : Awaited<PageProps['searchParams']>;
 }
 
-export interface Image {
-  id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  alt: string;
-  src: string;
-  url: string;
-  caption: string | null;
-  classifiedId: number;
-  blurhash: string;
-  isMain: boolean;
-}
 
-export interface ClassifiedWithImages {
-  id: number;
-  title: string;
-  price: bigint;
-  year: number;
-  odoReading: number;
-  images: Image[];
-  // Add other fields as needed
-}
+export type ClassifiedWithImages = Prisma.ClassifiedGetPayload<{ 
 
+  include: {
+     images: true; 
+    };
+
+}>;
