@@ -46,7 +46,7 @@ const roboto = Roboto({  // Use the Roboto font
       >   
 
      {/* Global providers */}
- <NextToploader showSpinner = {true} />
+ <NextToploader showSpinner = {false} />
         <ToastProvider>  </ToastProvider>
 <NuqsAdapter>{children}</NuqsAdapter>
         
@@ -54,3 +54,4 @@ const roboto = Roboto({  // Use the Roboto font
     </html>
   );
 }
+
