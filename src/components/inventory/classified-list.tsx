@@ -1,22 +1,20 @@
 import type { ClassifiedWithImages } from "@/config/types";
 import { ClassifiedCard } from "./classified-card";
 
-interface ClassifiedslistProps { 
-    classifieds: ClassifiedWithImages[];
-
+interface ClassifiedslistProps {
+  classifieds: ClassifiedWithImages[];
 }
 
-export const Classifiedslist = ( props: ClassifiedslistProps)  => {
+export const Classifiedslist = (props: ClassifiedslistProps) => {
+  const { classifieds } = props;
 
-    const { classifieds } = props;
-
-    return ( 
-        <div className="grid grid-cols-2  md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {classifieds.map((classified) => {
-                return <ClassifiedCard key={classified.id} classified={classified} />;
-            })}
-
-            </div>
-
-        );
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      {classifieds.map((classified) => (
+        <ClassifiedCard key={classified.id} classified={classified} />
+      ))}
+    </div>
+  );
 };
+
+export default Classifiedslist;
