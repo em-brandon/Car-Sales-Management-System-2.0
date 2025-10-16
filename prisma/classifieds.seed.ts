@@ -1,6 +1,6 @@
-
+import { Prisma, PrismaClient } from '@prisma/client'
 import { faker } from '@faker-js/faker'
-import slugify from 'slug';
+import slugify from 'slugify';
 
 export async function seedClassifieds(prisma: PrismaClient ) {
     const makes = await prisma.make.findMany({
@@ -27,7 +27,7 @@ for ( let i = 0; i < 25 ; i++) {
 
     const year = faker.date.between({
         
-        from: new Date (1925, 0 , 1 )
+        from: new Date (1925, 0 , 1 ),
         to: new Date(),
     }).getFullYear();
 
@@ -46,6 +46,12 @@ for ( let i = 0; i < 25 ; i++) {
         ... (variants?.id && {modelVariantId: variants.id}),
         title,
         price: faker.number.int ({min: 400000, max: 10000000}),
-        currency: CurrencyCode.USD,
-        odoUnit: faker.helpers.arrayElement(Object.values(OdoUnit)),
+        odoReading: faker.number.int({min: 0, max: 300000}),
+        odoUnit: faker.helpers.arrayElement(['km', 'mi']),
+
+
+
         
+    })
+}
+}

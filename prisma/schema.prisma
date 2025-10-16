@@ -76,7 +76,7 @@ odoUnit      String @default("KM") @map("odo_unit") // KM or Miles
 makeId         Int @map("make_id")
 make           Make @relation(fields: [makeId], references: [id], onDelete: Cascade)
 modelId        Int @map("model_id")
-modelVariantId Int @map("model_variant_id")
+modelVariantId Int? @map("model_variant_id")
 model          Model @relation(fields: [modelId], references: [id], onDelete: Cascade)
 modelVariant   ModelVariant? @relation(fields: [modelVariantId], references: [id], onDelete: Cascade)
 QisjCompliant  QISJCompliant @default(EXEMPT) 
