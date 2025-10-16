@@ -72,7 +72,7 @@ odoReading     Int @default(0) @map("odo_reading")
 seats          Int @default(5)
 price          BigInt @default(0) @map ("price") // used BigInt  variable to hold lager values than int 
 
-
+odoUnit      String @default("KM") @map("odo_unit") // KM or Miles 
 makeId         Int @map("make_id")
 make           Make @relation(fields: [makeId], references: [id], onDelete: Cascade)
 modelId        Int @map("model_id")
