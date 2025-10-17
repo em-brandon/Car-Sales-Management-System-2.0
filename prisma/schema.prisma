@@ -64,7 +64,7 @@ id             Int      @id @default(autoincrement())
 views          Int      @default(0)
 slug           String   @unique 
 VehicleReg     String?
-
+  vrm          String?
 
 title          String
 year           Int
