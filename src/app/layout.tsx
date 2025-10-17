@@ -41,7 +41,7 @@ export default function RootLayout({
         )}
       >
         {/* Global Providers */}
-        <NextToploader showSpinner={false} />
+        <NextToploader showSpinner={true} />
 
         <NuqsAdapter>{children}</NuqsAdapter>
 
